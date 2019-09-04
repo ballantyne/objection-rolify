@@ -1,0 +1,20 @@
+{
+  "name": "objection-rolify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Scott Ballantyne",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^3.0.1",
+    "handlebars": "^4.1.2"
+  },
+  "devDependencies": {
+    "sqlite3": "^4.1.0",
+    "knex": "^0.19.3",
+    "objection": "^1.6.9"
+  }
+}
