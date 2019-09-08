@@ -43,7 +43,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'forums', knex: knex});
         class Forum extends resourcify(Model) {
           static get tableName () {
             return 'forums';
@@ -96,7 +96,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'forums', knex: knex});
         class Forum extends resourcify(Model) {
           static get tableName () {
             return 'forums';
@@ -184,7 +184,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'forums', knex: knex});
         class Forum extends resourcify(Model) {
           static get tableName () {
             return 'forums';
@@ -237,7 +237,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'forums', knex: knex});
         class Forum extends resourcify(Model) {
           static get tableName () {
             return 'forums';

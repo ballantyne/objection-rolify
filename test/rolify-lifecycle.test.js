@@ -55,7 +55,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'items', knex: knex});
         class Item extends resourcify(Model) {
           static get tableName () {
             return 'items';
@@ -101,7 +101,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'items', knex: knex});
         class Item extends resourcify(Model) {
           static get tableName () {
             return 'items';
@@ -149,7 +149,7 @@ describe('Objection', function() {
         
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'items', knex: knex});
         class Item extends resourcify(Model) {
           static get tableName () {
             return 'items';
@@ -195,7 +195,7 @@ describe('Objection', function() {
           }
         }
 
-        var resourcify = Rolify.resourcify({knex: knex});
+        var resourcify = Rolify.resourcify({resource: 'items', knex: knex});
         class Item extends resourcify(Model) {
           static get tableName () {
             return 'items';

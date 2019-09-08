@@ -1,0 +1,24 @@
+{ 
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "noImplicitAny": true, 
+    "sourceMap": true,
+    "moduleDeclaration": true,
+    "outDir": "build",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules"
+      ]
+    }
+  },
+  "files": [
+    "src/*.ts",
+    "node_modules/objection/typings/objection"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}

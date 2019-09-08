@@ -13,8 +13,16 @@
     "handlebars": "^4.1.2"
   },
   "devDependencies": {
-    "sqlite3": "^4.1.0",
+    "@types/node": "^12.7.4",
+    "gulp": "^4.0.2",
+    "gulp-mocha": "^7.0.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-tslint": "^8.1.4",
+    "gulp-typescript": "^5.0.1",
     "knex": "^0.19.3",
-    "objection": "^1.6.9"
+    "objection": "^1.6.9",
+    "sqlite3": "^4.1.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2"
   }
 }

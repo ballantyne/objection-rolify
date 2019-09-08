@@ -1,20 +1,22 @@
-const path = require('path');
+import * as path from 'path';
+import * as types from '../typings';
+import * as objection from 'objection/typings/objection';
 
-module.exports = (options) => {
+module.exports = (options:types.RolifyOptions) => {
 
   options = Object.assign({
-    user_table: 'people',
-    user_reference: 'person_id',
-    role_reference: 'role_id',
-    join_table: 'people_roles',
-    table: 'roles',
+    userTable: 'people',
+    userReference: 'person_id',
+    roleReference: 'role_id',
+    joinTable: 'people_roles',
+    roleTable: 'roles',
     strict: false
   }, options);
 
-  return (Model) => {
+  return (Model:objection.ModelClass<any>) => {
 
-    if (options.role_class == undefined) {
-      options.role_class = require(path.join(__dirname, 'role'))(options)(Model);
+    if (options.roleClass == undefined) {
+      options.roleClass = require(path.join(__dirname, 'role'))(options)(Model);
     }
 
     return class extends Model {
@@ -47,46 +49,52 @@ module.exports = (options) => {
       }
 
       
-      static withRole(roleName, resource) {
+      static withRole(roleName:string, resource:any) {
         var self = this;
 
         return new Promise(async (resolve, reject) => {
-          var roleQuery = options.knex.select('id').table(options.table)
+          var roleQuery = options.knex.select('id').table(options.roleTable)
           if (resource != undefined) {
-            roleQuery = roleQuery.where(`${options.table}.resource_id`, resource.id)
-            roleQuery = roleQuery.where(`${options.table}.resource_type`, resource.constructor.tableName)
+            roleQuery = roleQuery.where(`${options.roleTable}.resource_id`, resource.id)
+              .where(`${options.roleTable}.resource_type`, resource.constructor.tableName)
           }
-          var join = options.knex.select(`${options.join_table}.${options.user_reference} as id`)
-            .table(options.join_table).whereIn('role_id', roleQuery);
-          var userRoles = options.knex.select('id').table(options.user_table)
+          var join = options.knex
+            .select(`${options.joinTable}.${options.userReference} as id`)
+            .table(options.joinTable).whereIn('role_id', roleQuery);
+          var userRoles = options.knex
+          .select('id')
+          .table(options.userTable)
             .whereIn('id', join);
-          var users = await self.query().whereIn('id', userRoles);
+          var users = await self.query()
+            .whereIn('id', userRoles);
 
           resolve(users);         
         });  
       }
 
-      static withAnyRole(roleNames) {
+      static withAnyRole(...roleNames:string[]) {
         var self = this;
  
-        roleNames = Object.keys(arguments).map((key) => {
-          return arguments[key];
-        })
-        
         return new Promise(async (resolve, reject) => {
-          var roleQuery = options.knex.select('id').table(options.table)
-          var i;
-          for (var i = 0; i < roleNames.length; i++) {
+          var roleQuery = options.knex
+            .select('id')
+            .table(options.roleTable)
+          var i:number;
+          for (i = 0; i < roleNames.length; i++) {
             var roleName = roleNames[i]
             if (i == 0) {
-              roleQuery = roleQuery.where(`${options.table}.name`, roleName);
+              roleQuery = roleQuery.where(`${options.roleTable}.name`, roleName);
             } else {
-              roleQuery = roleQuery.orWhere(`${options.table}.name`, roleName);
+              roleQuery = roleQuery.orWhere(`${options.roleTable}.name`, roleName);
             }
           }
-          var join = options.knex.select(`${options.join_table}.${options.user_reference} as id`)
-            .table(options.join_table).whereIn('role_id', roleQuery);
-          var userRoles = options.knex.select('id').table(options.user_table)
+          var join = options.knex
+            .select(`${options.joinTable}.${options.userReference} as id`)
+            .table(options.joinTable)
+            .whereIn('role_id', roleQuery);
+          var userRoles = options.knex
+            .select('id')
+            .table(options.userTable)
             .whereIn('id', join);
           var users = await self.query().whereIn('id', userRoles);
 
@@ -94,45 +102,44 @@ module.exports = (options) => {
         });
       }
 
-      static withAllRoles(roleNames) {
+      static withAllRoles(...roleNames:string[]) {
         var self = this;
  
-        roleNames = Object.keys(arguments).map((key) => {
-          return arguments[key];
-        })
-        
         return new Promise(async (resolve, reject) => {
 
           var query = options.knex.select('people.id as userId', 
             'roles.name as roleName', 
             'roles.id as roleId').table({
-              people: options.user_table
+              people: options.userTable
             })
-            .leftJoin(options.join_table, 
-              `${options.user_table}.id`, 
-              `${options.join_table}.${options.user_reference}`)
-            .leftJoin(options.table, 
-              `${options.join_table}.${options.role_reference}`, 
-              `${options.table}.id`)
+            .leftJoin(options.joinTable, 
+              `${options.userTable}.id`, 
+              `${options.joinTable}.${options.userReference}`)
+            .leftJoin(options.roleTable, 
+              `${options.joinTable}.${options.roleReference}`, 
+              `${options.roleTable}.id`)
           
-          var i; 
+          var i:any; 
           for (i = 0; i < roleNames.length; i++) {
             var roleName = roleNames[i]
             if (i == 0) {
-              query = query.where(`${options.table}.name`, roleName);
+              query = query.where(`${options.roleTable}.name`, roleName);
             } else {
-              query = query.orWhere(`${options.table}.name`, roleName);
+              query = query.orWhere(`${options.roleTable}.name`, roleName);
             }
           }
 
           var userRoles = await query;
-          var users = await self.query().whereIn('id', userRoles.map((r) => { return r.userId }));
+          var users = await self.query()
+            .whereIn('id', userRoles.map((role:any) => { 
+              return role.userId 
+          }));
           var i;
           for (i = 0; i < users.length; i++) {
             var userId = users[i].id
-            users[i].roles = userRoles.filter((role) => { 
+            users[i].roles = userRoles.filter((role:any) => { 
               return role.userId == userId 
-            }).map((role) => { 
+            }).map((role:any) => { 
               return role.roleName 
             });
             users[i].roles = Array.from(new Set(users[i].roles));
@@ -148,7 +155,7 @@ module.exports = (options) => {
         });
       }
 
-      findRole (roleName) {
+      findRole (roleName:string | any) {
         var self = this;
 
         return new Promise(async (resolve, reject) => {
@@ -160,9 +167,9 @@ module.exports = (options) => {
           } else {
             roleOptions = roleName
           }
-          var roles = await options.knex
+          var roles:types.Role[] = await options.knex
             .select()
-            .table(options.table)
+            .table(options.roleTable)
             .where(roleOptions)
             .limit(1)
           var role = roles[0];
@@ -170,13 +177,13 @@ module.exports = (options) => {
         });      
       }
       
-      addRole (roleName, resource) {
+      addRole (roleName:string, resource:any) {
         var self = this;
         
         return new Promise((resolve, reject) => {
           self.$beforeAdd().then(async () => {
-            var role;
-            var roleOptions = {
+            var role:types.Role;
+            var roleOptions:types.Role = {
               name: roleName
             }
 
@@ -189,11 +196,11 @@ module.exports = (options) => {
                 roleOptions.resource_id = resource.id;
                 roleOptions.resource_type = resource.constructor.tableName;
               }
-              var role = await self.findRole(roleOptions);  
+              role = await self.findRole(roleOptions);  
             }
 
             if (role == undefined) {
-              await options.knex(options.table).insert(roleOptions)
+              await options.knex(options.roleTable).insert(roleOptions)
               role = await self.findRole(roleOptions);
             }
 
@@ -202,9 +209,9 @@ module.exports = (options) => {
               role_id: role.id
             };
 
-            await options.knex(options.join_table).insert(joinOptions);
+            await options.knex(options.joinTable).insert(joinOptions);
             self.$afterAdd().then(() => {
-              resolve(role[0]);
+              resolve(role);
             }).catch(() => {
               reject();
             });
@@ -214,15 +221,16 @@ module.exports = (options) => {
         })
       }
 
-      removeRole(roleName) {
+      removeRole(roleName:string) {
         var self = this;
         return new Promise((resolve, reject) => {
           self.$beforeRemove().then(async () => {
-            var role = await self.findRole(roleName);
-            var deleted = await options.knex(options.join_table).where({
-              person_id: self.id,
-              role_id: role.id
-            }).del()
+            var role:types.Role = await self.findRole(roleName);
+            var deleted = await options.knex(options.joinTable)
+              .where({
+                person_id: self.id,
+                role_id: role.id
+              }).del()
             self.$afterRemove().then(() => {
               resolve(deleted);
             }).catch(() => {
@@ -234,17 +242,17 @@ module.exports = (options) => {
         });
       }
 
-      hasRole(role, resource) {
+      hasRole(role:string, resource:any) {
         return this.hasStrictRole(role, resource, options.strict);
       }
 
-      hasStrictRole(role, resource, strictness=true) {
+      hasStrictRole(role:string, resource:any, strictness:boolean=true) {
         var self = this;
 
         return new Promise(async (resolve, reject) => {
-          var roleOptions;
+          var roleOptions:types.Role;
           if (resource != undefined) {
-            var roleOptions = {};
+            roleOptions = {};
             if (typeof resource == 'function') {
               roleOptions.resource_type = resource.tableName;
             } else {
@@ -255,26 +263,26 @@ module.exports = (options) => {
             roleOptions = {};
           } 
 
-          var roles = await self.roles(roleOptions, strictness);
-          var has = roles.indexOf(role) > -1;
+          var roles:string[] | any = await self.roles(roleOptions, strictness);
+          var has:boolean = roles.indexOf(role) > -1;
           resolve(has);
         });     
       }
 
-      roles(roleOptions={}, strict=false) {
+      roles(roleOptions:types.Role={}, strict=false) {
         var self = this;
 
-        var params = {};
-        params[options.user_reference] = self.id;
+        var params:any = {};
+        params[options.userReference] = self.id;
 
         return new Promise(async (resolve, reject) => {
           var joins = options.knex
-            .select(`${options.join_table}.${options.role_reference} as id`)
-            .table(options.join_table)
+            .select(`${options.joinTable}.${options.roleReference} as id`)
+            .table(options.joinTable)
             .where(params);
 
-          var query = options.knex.select(`${options.table}.name`)
-            .table(options.table)
+          var query = options.knex.select(`${options.roleTable}.name`)
+            .table(options.roleTable)
             .whereIn('id', joins)
             .where(roleOptions);
           
@@ -282,8 +290,10 @@ module.exports = (options) => {
             query = query.orWhere({resource_type: roleOptions.resource_type});
           }
           
-          var roles = await query
-          roles = roles.map((role) => { return role.name })
+          var roles:any[] = await query
+          roles = roles.map((role:types.Role) => { 
+            return role.name 
+          })
           resolve(roles);
         });
       }
