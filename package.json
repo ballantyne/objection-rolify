@@ -19,7 +19,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-tslint": "^8.1.4",
     "gulp-typescript": "^5.0.1",
-    "knex": "^0.19.3",
+    "knex": "^0.19.5",
     "objection": "^1.6.9",
     "sqlite3": "^4.1.0",
     "tslint": "^5.19.0",
